@@ -1,0 +1,167 @@
+#BUILDING AN ANSIBLE INVENTORY
+-----------------------------
+In this exercise, you will create a new static inventory containing hosts and groups.
+
+#OUTCOMES
+
+You should be able to create default and custom static inventories.
+
+#BEFORE YOU BEGIN
+
+Log in to workstation as student using student as the password.
+On workstation, run the setup.sh script file.
+
+[student@workstation ~]# sh setup.sh
+
+This start script ensures that the managed hosts, servera, serverb, serverc, and serverd, are reachable on the network.
+
+1. Modify /etc/ansible/hosts to include servera.lab.example.com as a managed host.
+	1.1. Add servera.lab.example.com to the end of the default inventory file, /etc/ansible/hosts.
+
+		[student@workstation ~]$ sudo vim /etc/ansible/hosts
+		...output omitted...
+		## db-[99:101]-node.example.com
+		servera.lab.example.com
+
+	1.2. Continue editing the /etc/ansible/hosts inventory file by adding a
+	     [webservers] group to the bottom of the file with serverb.lab.example.com
+	     server as a group member.
+	
+		[student@workstation ~]$ sudo vim /etc/ansible/hosts
+		...output omitted...
+		## db-[99:101]-node.example.com
+		servera.lab.example.com
+		[webservers]
+		serverb.lab.example.com
+
+2. Verify the managed hosts in the /etc/ansible/hosts inventory file.
+	
+	2.1. Use the ansible all --list-hosts command to list all managed hosts in the default inventory file.
+	
+		[student@workstation ~]$ ansible all --list-hosts
+ 		
+		hosts (2):
+ 		servera.lab.example.com
+ 		serverb.lab.example.com
+	
+	2.2. Use the ansible ungrouped --list-hosts command to list only managed hosts
+	     that do not belong to a group.
+
+		[student@workstation ~]$ ansible ungrouped --list-hosts
+ 		hosts (1):
+ 		servera.lab.example.com
+	
+	2.3. Use the ansible webservers --list-hosts command to list only managed
+	     hosts that belong to the webservers group.
+
+		[student@workstation ~]$ ansible webservers --list-hosts
+ 		hosts (1):
+		serverb.lab.example.com
+
+3. Create a custom static inventory file named inventory in the /home/student/deployinventory working directory.
+   Information about your four managed hosts is listed in the following table. You will assign each host to 
+   multiple groups for management purposes based on the purpose of the host, the city where it is located, 
+   and the deployment environment to which it belongs. In addition, groups for US cities (Raleigh and Mountain View) 
+   must be set up as children of the group us so that hosts in the United States can be managed as a group.
+
+ # Server Inventory Specifications
+ #HOST NAME      		PURPOSE       	LOCATION        ENVIRONMENT
+  servera.lab.example.com 	Web server 	Raleigh 	Development
+  serverb.lab.example.com 	Web server 	Raleigh 	Testing
+  serverc.lab.example.com 	Web server 	Mountain View 	Production
+  serverd.lab.example.com 	Web server 	London 		Production
+
+	3.1. Create the /home/student/deploy-inventory working directory.
+	
+		[student@workstation ~]$ mkdir ~/deploy-inventory
+	
+	3.2. Create an inventory file in the /home/student/deploy-inventory working directory. 
+	     Use the Server Inventory Specifications table as a guide. Edit the inventory file 
+             and add the following content:
+	
+		[student@workstation ~]$ cd ~/deploy-inventory
+		[student@workstation deploy-inventory]$ vim inventory
+		[webservers]
+		server[a:d].lab.example.com
+		[raleigh]
+		servera.lab.example.com
+		serverb.lab.example.com
+		[mountainview]
+		serverc.lab.example.com
+		[london]
+		serverd.lab.example.com
+		[development]
+		servera.lab.example.com
+		[testing]
+		serverb.lab.example.com
+		[production]
+		serverc.lab.example.com
+		serverd.lab.example.com
+		[us:children]
+		raleigh
+		mountainview
+
+4. Use variations of the ansible host-or-group -i inventory --list-hosts command to verify 
+   the managed hosts and groups in the custom /home/student/deployinventory/inventory inventory file.
+
+#IMPORTANT
+#Your ansible command must include the -i inventory option. This makes ansible use your inventory 
+#file in the current working directory instead of the system /etc/ansible/hosts inventory file.
+
+	4.1. Use the ansible all -i inventory --list-hosts command to list all managed hosts.
+	
+		[student@workstation deploy-inventory]$ ansible all -i inventory --list-hosts
+ 		
+		hosts (4):
+ 		
+		servera.lab.example.com
+ 		serverb.lab.example.com
+ 		serverc.lab.example.com
+ 		serverd.lab.example.com
+
+	4.2. Use the ansible ungrouped -i inventory --list-hosts command to list all managed hosts 
+             listed in the inventory file but are not part of a group. There are no ungrouped managed 
+             hosts in this inventory file.
+
+		[student@workstation deploy-inventory]$ ansible ungrouped -i inventory --list-hosts
+ 		
+		[WARNING]: No hosts matched, nothing to do
+ 	
+		hosts (0):
+	
+	4.4. Use the ansible testing -i inventory --list-hosts command to list all managed hosts listed in the testing group.
+
+		[student@workstation deploy-inventory]$ ansible testing -i inventory --list-hosts
+ 	
+		hosts (1):
+ 	
+		serverb.lab.example.com
+
+	4.5. Use the ansible production -i inventory --list-hosts command to list all managed hosts listed in the production group.
+
+		[student@workstation deploy-inventory]$ ansible production -i inventory --list-hosts
+ 	
+		hosts (2):
+ 	
+		serverc.lab.example.com
+ 		serverd.lab.example.com
+
+	4.6. Use the ansible us -i inventory --list-hosts command to list all managed hosts listed in the us group.
+
+		[student@workstation deploy-inventory]$ ansible us -i inventory --list-hosts
+ 	
+		hosts (3):
+ 
+		servera.lab.example.com
+ 		serverb.lab.example.com
+ 		serverc.lab.example.com
+
+	4.7. You are encouraged to experiment with other variations to confirm managed host entries in the custom inventory file.
+-------------------------------------------------------------------------------------------------------------------------------------
+# Finish
+
+On workstation, run the clean_up script to clean up this exercise.
+	
+[student@workstation ~]$ sh clean_up.sh
+
+#This concludes the guided exercise.

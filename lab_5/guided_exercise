@@ -1,0 +1,79 @@
+#DEPLOYING ANSIBLE
+------------------
+
+#PERFORMANCE CHECKLIST
+
+In this lab, you will configure an Ansible control node for connections to inventory hosts and use ad hoc commands to perform actions on managed hosts.
+
+#OUTCOMES
+
+You should be able to configure a control node to run ad hoc commands on managed hosts.
+You will use Ansible to manage a number of hosts from workstation.lab.example.com
+as the student user. You will set up a project directory containing an ansible.cfg file with
+specific defaults, and an inventory directory containing an inventory file.
+You will use ad hoc commands to ensure the /etc/motd file on all managed hosts consists
+of specified content.
+
+#BEFORE YOU BEGIN
+
+Log in to workstation as student using student as the password.
+On workstation, run the sh setup.sh command. This script ensures
+that the managed hosts are reachable on the network.
+
+[student@workstation ~]$ sh setup.sh
+------------------------------------------
+
+1.  Verify that the ansible package is installed on the control node, and run the 
+    #ansible --version command.
+
+2.  In the student user's home directory on workstation, /home/student, create a new
+    directory named deploy-review. Change to that directory.
+
+3.  Create an ansible.cfg file in the deploy-review directory, which you will use to set the
+    following Ansible defaults:
+
+    • Connect to managed hosts as the devops user.
+    • Use the inventory subdirectory to contain the inventory file.
+    • Disable privilege escalation by default. If privilege escalation is enabled 
+      from the command line, configure default settings to have Ansible use the 
+      sudo method to switch to the root user account. Ansible should not prompt 
+      for the devops login password or the sudo password.
+
+    The managed hosts have been configured with a devops user who can log in using 
+    SSH keybased authentication and can run any command as root using the sudo 
+    command without a password.
+
+4.  Create the /home/student/deploy-review/inventory directory.
+    Download the http://materials.example.com/labs/deploy-review/inventory
+    file and save it as a static inventory file named 
+    /home/student/deploy-review/inventory/inventory.
+
+5.  Execute the id command as an ad hoc command that targets the all host group to verify
+    that devops is the remote user and that privilege escalation is disabled by default.
+
+6.  Execute an ad hoc command, targeting the all host group, that uses the copy module to
+    modify the contents of the /etc/motd file on all hosts.
+    Use the copy module's content option to ensure that the /etc/motd file consists of the
+    string This server is managed by Ansible.\n as a single line. (The \n used with the
+    content option causes the module to put a newline at the end of the string.)
+    You must request privilege escalation from the command line to make this work with your
+    current ansible.cfg defaults.
+
+7.  If you run the same ad hoc command again, you should see that the copy module detects
+    that the files are already correct and so they are not changed. 
+    Look for the ad hoc command to report SUCCESS and the line "changed": false for 
+    each managed host.
+
+8.  To confirm this another way, run an ad hoc command that targets the all host group, using
+    the command module to execute the cat /etc/motd command. Output from the ansible
+    command should display the string This server is managed by Ansible. for all
+    hosts. You do not need privilege escalation for this ad hoc command.
+
+#Finish
+
+On workstation, run the lab deploy-review finish script to clean up the resources created
+in this lab.
+
+[student@workstation ~]$ sh cleanup.sh
+
+#This concludes the lab.

@@ -1,0 +1,82 @@
+# IMPLEMENTING PLAYBOOKS
+-------------------------
+
+# PERFORMANCE CHECKLIST
+
+In this lab, you will configure and perform administrative tasks on managed hosts using a
+playbook.
+
+# OUTCOMES
+
+You should be able to construct and execute a playbook to install, configure, and verify the
+status of web and database services on a managed host.
+
+# BEFORE YOU BEGIN
+
+Log in to workstation as student using student as the password.
+On workstation, run the sh setup.sh command. This function ensures that the managed host, 
+serverb.lab.example.com, is reachable on the network. It also ensures that the correct 
+Ansible configuration file and inventory file are installed on the control node.
+
+[student@workstation ~]$ sh setup.sh
+
+A working directory, /home/student/playbook-review, has been created on
+workstation for the Ansible project. The directory has already been populated
+with an ansible.cfg configuration file and an inventory file. The managed host,
+serverb.lab.example.com, is already defined in this inventory file.
+_________________________________________________________________________________
+
+# NOTE
+
+The playbook used by this lab is very similar to the one you wrote in the preceding
+guided exercise in the lab_8. If you do not want to create this lab's playbook from
+scratch, you can use that exercise's playbook as a starting point for this lab.
+If you do, be careful to target the correct hosts and change the tasks to match the
+instructions for this exercise.
+
+_________________________________________________________________________________
+
+1.  Create a new playbook, /home/student/playbook-review/internet.yml, and add
+    the necessary entries to start a first play named Enable internet services and specify
+    its intended managed host, serverb.lab.example.com. Add an entry to enable privilege
+    escalation, and one to start a task list.
+
+2.  Add the required entries to the /home/student/playbook-review/internet.yml file
+    to define a task that installs the latest versions of firewalld, httpd, mariadb-server, \
+    php, and php-mysqlnd packages.
+
+3.  Add the necessary entries to the /home/student/playbook-review/internet.yml
+    file to define the firewall configuration tasks. They should ensure that the firewalld 
+    service is enabled and running, and that access is allowed to the httpd service.
+
+4.  Add the necessary tasks to ensure the httpd and mariadb services are enabled and
+    running.
+
+5.  Add the necessary entries to define the final task for generating web content for 
+    testing. Use the get_url module to copy 
+    http://localhost:/lab/index.php to /var/www/html/ 
+    on the managed host.
+
+6.  In /home/student/playbook-review/internet.yml, define another play for the task
+    to be performed on the control node. This play will test access to the web server 
+    that should
+    be running on the serverb managed host. This play does not require privilege escalation,
+    and will run on the localhost managed host.
+
+7.  Add a task that tests the web service running on serverb from the control node using the
+    uri module. Check for a return status code of 200.
+
+8.  Verify the syntax of the internet.yml playbook.
+
+9.  Use the ansible-playbook command to run the playbook. Read through the output
+    generated to ensure that all tasks completed successfully.
+    
+#Finish
+
+On workstation, run the sh cleanup.sh script to clean up the resources
+created in this lab.
+
+[student@workstation ~]$ sh cleanup.sh
+
+#This concludes the lab.
+

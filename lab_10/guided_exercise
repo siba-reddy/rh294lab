@@ -1,0 +1,154 @@
+# MANAGING VARIABLES
+-----------------------
+
+In this exercise, you will define and use variables in a playbook.
+
+# OUTCOMES
+
+You should be able to:
+  • Define variables in a playbook.
+  • Create tasks that use defined variables.
+
+# BEFORE YOU BEGIN
+
+Log in to workstation as student using student as the password.
+On workstation, run the "#sh setup.sh " command. This function creates
+the data-variables working directory, and populates it with an Ansible configuration file
+and host inventory.
+
+[student@workstation ~]$ sh setup.sh
+_________________________________________________________________________________________
+
+1.  On workstation, as the student user, change into the /home/student/datavariables 
+    directory
+    
+    [student@workstation ~]$ cd ~/data-variables
+
+2.  Over the next several steps, you will create a playbook that installs the Apache web 
+    server and opens the ports for the service to be reachable. The playbook queries the 
+    web serve to ensure it is up and running.
+
+    Create the playbook.yml playbook and define the following variables in the vars
+    section:
+    
+    Variables
+    _________
+
+#     VARIABLE                                DESCRIPTION
+   
+      web_pkg                       Web server package to install.
+      firewall_pkg                  Firewall package to install.
+      web_service                   Web service to manage.
+      firewall_service              Firewall service to manage.
+      python_pkg                    Required package for the uri module.
+      rule                          The service name to open.
+      __________________________________________________________________________
+
+      ---
+      - name: Deploy and start Apache HTTPD service
+        hosts: webserver
+        vars:
+          web_pkg: httpd
+          firewall_pkg: firewalld
+          web_service: httpd
+          firewall_service: firewalld
+          python_pkg: python3-PyMySQL
+          rule: http
+
+3.  Create the tasks block and create the first task, which should use the yum module to make
+    sure the latest versions of the required packages are installed.
+ 
+        tasks:
+          - name: Required packages are installed and up to date
+            yum:
+              name:
+                - "{{ web_pkg }}"
+                - "{{ firewall_pkg }}"
+                - "{{ python_pkg }}"
+              state: latest
+  ________________________________________________________________________________
+  # NOTE
+      
+      You can use ansible-doc yum to review the syntax for the yum module. The
+      syntax shows that its name directive can take a list of packages that the module
+      should work with, so that you do not need separate tasks to makes sure each
+      package is up-to-date.
+  _______________________________________________________________________________
+  
+4.  Create two tasks to make sure that the httpd and firewalld services are started and
+    enabled.
+ 
+          - name: The {{ firewall_service }} service is started and enabled
+            service:
+              name: "{{ firewall_service }}"
+              enabled: true
+              state: started
+          - name: The {{ web_service }} service is started and enabled
+            service:
+              name: "{{ web_service }}"
+              enabled: true
+              state: started
+  
+  _____________________________________________________________________________________
+  #NOTE
+
+    The service module works differently from the yum module, as documented by
+    ansible-doc service. Its name directive takes the name of exactly one service
+    to work with.
+
+    You can write a single task that ensures both services are started and enabled, using
+    the loop keyword covered later in this course.
+  ____________________________________________________________________________________
+
+5.  Add a task that ensures specific content exists in the /var/www/html/index.html file.
+  
+          - name: Web content is in place
+            copy:
+              content: "Example web content"
+              dest: /var/www/html/index.html
+
+6.  Add a task that uses the firewalld module to ensure the firewall ports are open for the
+    firewalld service named in the rule variable.
+ 
+          - name: The firewall port for {{ rule }} is open
+            firewalld:
+              service: "{{ rule }}"
+              permanent: true
+              immediate: true
+              state: enabled
+
+7.  Create a new play that queries the web service to ensure everything has been correctly
+    configured. It should run on localhost. Because of that Ansible fact, Ansible does not
+    have to change identity, so set the become module to false. You can use the uri module
+    to check a URL. For this task, check for a status code of 200 to confirm the web server 
+    on servera.lab.example.com is running and correctly configured.
+
+      - name: Verify the Apache service
+        hosts: localhost
+        become: false
+        tasks:
+          - name: Ensure the webserver is reachable
+            uri:
+              url: http://servera.lab.example.com
+              status_code: 200
+
+8.  Before you run the playbook, use the ansible-playbook --syntax-check command
+    to verify its syntax. If it reports any errors, correct them before moving to the 
+    next step. You should see output similar to the following:
+
+      [student@workstation data-variables]$ ansible-playbook --syntax-check playbook.yml
+      
+      playbook: playbook.yml
+9.  Use the ansible-playbook command to run the playbook. Watch the output as Ansible
+    installs the packages, starts and enables the services, and ensures the web server is
+    reachable.
+
+    [student@workstation data-variables]$ ansible-playbook playbook.yml
+
+# Finish
+
+On workstation, run the "$sh cleanup.sh" script to clean up this exercise.
+
+[student@workstation ~]$ sh cleanup.sh
+
+# This concludes the guided exercise.

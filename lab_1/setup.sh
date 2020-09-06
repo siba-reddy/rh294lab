@@ -1,2 +1,2 @@
-#!bin/bash
+#!/bin/bash
 yum remove ansible -y 

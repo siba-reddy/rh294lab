@@ -1,0 +1,259 @@
+# IMPLEMENTING MULTIPLE PLAYS
+-------------------------------
+
+In this exercise, you will create a playbook containing multiple plays, then use it to 
+perform configuration tasks on managed hosts.
+
+# OUTCOMES
+
+You should be able to construct and execute a playbook to manage configuration and
+perform administration of a managed host.
+
+# BEFORE YOU BEGIN
+
+Log in to workstation as student using student as the password.
+On workstation, run the sh setup.sh command. This function ensures
+that the managed host, servera.lab.example.com, is reachable on the network. It also
+ensures that the correct Ansible configuration file and inventory file are installed on the
+control node.
+
+[student@workstation ~]$ sh setup.sh
+
+------------------------------------------------------------------------------------------
+
+1. A working directory, /home/student/playbook-multi, has been created on
+   workstation for the Ansible project. The directory has already been populated
+   with an ansible.cfg configuration file and an inventory file, inventory. The
+   managed host, servera.lab.example.com, is already defined in this inventory
+   file. Create a new playbook, /home/student/playbook-multi/intranet.yml,
+   and add the lines needed to start the first play. It should target the managed host
+   s ervera.lab.example.com and enable privilege escalation.
+   1.1. Change directory into the /home/student/playbook-multi working directory.
+        
+          [student@workstation ~]$ cd ~/playbook-multi
+          [student@workstation playbook-multi]$
+
+   1.2. Create and open a new playbook, /home/student/playbook-multi/
+        intranet.yml, and add a line consisting of three dashes to the beginning of the
+        file to indicate the start of the YAML file.
+
+          ---
+
+   1.3. Add the following line to the /home/student/playbook-multi/intranet.yml
+        file to denote the start of a play with a name of Enable intranet services.
+
+          - name: Enable intranet services
+   
+   1.4. Add the following line to indicate that the play applies to the
+        servera.lab.example.com managed host. Be sure to indent the line with two
+        spaces (aligning with the name keyword above it) to indicate that it is part of the 
+        first play.
+ 
+            hosts: servera.lab.example.com
+
+   1.5. Add the following line to enable privilege escalation. Be sure to indent the line 
+        with two spaces (aligning with the keywords above it) to indicate it is part of the 
+        first play.
+ 
+            become: yes
+
+   1.6. Add the following line to define the beginning of the tasks list. Indent the line 
+        with two spaces (aligning with the keywords above it) to indicate that it is part 
+        of the first play.
+  
+            tasks:
+
+2. As the first task in the first play, define a task that ensures that the httpd and 
+   firewalld packages are up to date.
+   Be sure to indent the first line of the task with four spaces. Under the tasks keyword 
+   in the first play, add the following lines.
+ 
+              - name: latest version of httpd and firewalld installed
+                yum:
+                  name:
+                    - httpd
+                    - firewalld
+                  state: latest
+
+    The first line provides a descriptive name for the task. The second line is indented with
+    six spaces and calls the yum module. The next line is indented eight spaces and is a name
+    keyword. It specifies which packages the yum module should ensure are up-to-date. The
+    yum module's name keyword (which is different from the task name) can take a list of
+    packages, which is indented ten spaces on the two following lines. After the list, the 8-
+    space indented state keyword specifies that the yum module should ensure that the latest
+    version of the packages is installed.
+
+3.  Add a task to the first play's list that ensures that the correct content is in /var/www/
+    html/index.html. 
+    Add the following lines to define the content for /var/www/html/index.html. Be sure
+    to indent the first line with four spaces.
+    
+              - name: test html page is installed
+                copy:
+                  content: "Welcome to the example.com intranet!\n"
+                  dest: /var/www/html/index.html
+
+    The first entry provides a descriptive name for the task. The second entry is indented 
+    with six spaces and calls the copy module. The remaining entries are indented with 
+    eight spaces and pass the necessary arguments to ensure that the correct content is in 
+    the web page.
+
+4.  Define two more tasks in the play to ensure that the firewalld service is running and 
+    will start on boot, and will allow connections to the httpd service.
+
+    4.1.  Add the following lines to ensure that the firewalld service is enabled and
+          running. Be sure to indent the first line with four spaces.
+              
+              - name: firewalld enabled and running
+                service:
+                  name: firewalld
+                  enabled: true
+                  state: started
+
+    The first entry provides a descriptive name for the task. The second entry is
+    indented with eight spaces and calls the service module. The remaining entries
+    are indented with ten spaces and pass the necessary arguments to ensure that the
+    firewalld service is enabled and started.
+
+    4.2.  Add the following lines to ensure that firewalld allows HTTP connections from
+          remote systems. Be sure to indent the first line with four spaces.
+ 
+              - name: firewalld permits access to httpd service
+                firewalld:
+                  service: http
+                  permanent: true
+                  state: enabled
+                  immediate: yes
+    
+    The first entry provides a descriptive name for the task. The second entry is
+    indented with six spaces and calls the firewalld module. The remaining entries are
+    indented with eight spaces and pass the necessary arguments to ensure that remote
+    HTTP connections are permanently allowed.
+
+5.  Add a final task to the first play that ensures that the httpd service is running and 
+    will start at boot.
+    
+    Add the following lines to ensure that the httpd service is enabled and running. 
+    Be sure to indent the first line with four spaces.
+ 
+              - name: httpd enabled and running
+                service:
+                  name: httpd
+                  enabled: true
+                  state: started
+                  
+    The first entry provides a descriptive name for the task. The second entry is indented 
+    with six spaces and calls the service module. The remaining entries are indented with 
+    eight spaces and pass the necessary arguments to ensure that the httpd service is 
+    enabled and running.
+
+6.  In /home/student/playbook-multi/intranet.yml, define a second play targeted at
+    localhost which will test the intranet web server. It does not need privilege escalation.
+
+    6.1.  Add the following line to define the start of a second play. Note that there is              no indentati on.  
+
+        - name: Test intranet web server
+
+    6.2.  Add the following line to indicate that the play applies to the localhost managed
+          host. Be sure to indent the line with two spaces to indicate that it is 
+          contained by the second play.
+          
+          hosts: localhost
+    
+    6.3.  Add the following line to disable privilege escalation. Be sure to align the 
+          indentation with the hosts keyword above it.
+
+          become: no
+
+    6.4.  Add the following line to the /home/student/playbook-multi/intranet.yml
+          file to define the beginning of the tasks list. Be sure to indent the line with two
+          spaces to indicate that it is contained by the second play.
+ 
+          tasks:
+
+7.  Add a single task to the second play, and use the uri module to request content from
+    http://servera.lab.example.com. The task should verify a return HTTP status code
+    of 200. Configure the task to place the returned content in the task results variable.
+    Add the following lines to create the task for verifying the web service from the control
+    node. Be sure to indent the first line with four spaces.
+ 
+            - name: connect to intranet web server
+              uri:
+                url: http://servera.lab.example.com
+                return_content: yes
+                status_code: 200
+    
+    The first line provides a descriptive name for the task. The second line is indented 
+    with six spaces and calls the uri module. The remaining lines are indented with 
+    eight spaces and pass the necessary arguments to execute a query for web content 
+    from the control node to the managed host and verify the status code received. 
+    The return_content keyword ensures that the server's response is added to the 
+    task results.
+
+8.  Verify that the final /home/student/playbook-multi/intranet.yml playbook
+    reflects the following structured content, then save and close the file.
+
+    ---
+    - name: Enable intranet services
+      hosts: servera.lab.example.com
+      become: yes
+      tasks:
+        - name: latest version of httpd and firewalld installed
+          yum:
+            name:
+              - httpd
+              - firewalld
+            state: latest
+        - name: test html page is installed
+          copy:
+            content: "Welcome to the example.com intranet!\n"
+            dest: /var/www/html/index.html
+        - name: firewalld enabled and running
+          service:
+            name: firewalld
+            enabled: true
+            state: started
+        - name: firewalld permits access to httpd service
+          firewalld:
+            service: http
+            permanent: true
+            state: enabled
+            immediate: yes
+        - name: httpd enabled and running
+          service:
+            name: httpd
+            enabled: true
+            state: started
+
+    - name: Test intranet web server
+      hosts: localhost
+      become: no
+      tasks:
+        - name: connect to intranet web server
+          uri:
+            url: http://servera.lab.example.com
+            return_content: yes
+            status_code: 200
+
+9.  Run the ansible-playbook --syntax-check command to verify the syntax of the /
+    home/student/playbook-multi/intranet.yml playbook.
+
+    [student@workstation playbook-multi]$ ansible-playbook --syntax-check intranet.yml
+
+    playbook: intranet.yml
+
+10. Execute the playbook using the -v option to output detailed results for each task. Read
+    through the output generated to ensure that all tasks completed successfully. Verify that
+    an HTTP GET request to http://servera.lab.example.com provides the correct content.
+
+    [student@workstation playbook-multi]$ ansible-playbook -v intranet.yml
+
+
+# Finish
+
+On workstation, run the lab playbook-multi finish command to clean up the resources
+created in this exercise.
+
+[student@workstation ~]$ sh cleanup.sh
+
+#This concludes the guided exercise

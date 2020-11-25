@@ -1,2 +1,10 @@
-# RH294-Lab
-IT automation is key to managing large numbers of systems and applications efficiently and consistently at scale. This labs develop the skills needed to efficiently operate and more easily scale the organization's dynamic IT infrastructure, accelerate application time to value, and rapidly adapt and implement needed innovation through DevOps practices.
+# Rsyslog docker container images
+
+[![Build Status](https://travis-ci.org/wodby/rsyslog.svg?branch=master)](https://travis-ci.org/wodby/rsyslog)
+[![Docker Pulls](https://img.shields.io/docker/pulls/wodby/rsyslog.svg)](https://hub.docker.com/r/wodby/rsyslog)
+[![Docker Stars](https://img.shields.io/docker/stars/wodby/rsyslog.svg)](https://hub.docker.com/r/wodby/rsyslog)
+[![Wodby Slack](http://slack.wodby.com/badge.svg)](http://slack.wodby.com)
+
+## Supported tags and respective `Dockerfile` links:
+
+- [`latest` (*Dockerfile*)](https://github.com/wodby/rsyslog/tree/master/Dockerfile)
